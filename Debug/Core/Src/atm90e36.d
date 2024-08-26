@@ -1,4 +1,4 @@
-Core/Src/RFID_RC522.o: ../Core/Src/RFID_RC522.c ../Core/Inc/RFID_RC522.h \
+Core/Src/atm90e36.o: ../Core/Src/atm90e36.c ../Core/Inc/atm90e36.h \
  ../Drivers/STM32H5xx_HAL_Driver/Inc/stm32h5xx_hal.h \
  ../Core/Inc/stm32h5xx_hal_conf.h \
  ../Drivers/STM32H5xx_HAL_Driver/Inc/stm32h5xx_hal_rcc.h \
@@ -27,7 +27,7 @@ Core/Src/RFID_RC522.o: ../Core/Src/RFID_RC522.c ../Core/Inc/RFID_RC522.h \
  ../Drivers/STM32H5xx_HAL_Driver/Inc/stm32h5xx_hal_uart.h \
  ../Drivers/STM32H5xx_HAL_Driver/Inc/stm32h5xx_hal_uart_ex.h \
  ../Drivers/STM32H5xx_HAL_Driver/Inc/stm32h5xx_hal_exti.h
-../Core/Inc/RFID_RC522.h:
+../Core/Inc/atm90e36.h:
 ../Drivers/STM32H5xx_HAL_Driver/Inc/stm32h5xx_hal.h:
 ../Core/Inc/stm32h5xx_hal_conf.h:
 ../Drivers/STM32H5xx_HAL_Driver/Inc/stm32h5xx_hal_rcc.h:

@@ -1,0 +1,3 @@
+atm90e36.c:28:6:readEnrgyMeterValues	1
+atm90e36.c:50:10:CommEnergyIC	1
+atm90e36.c:97:6:ATM90E36A_Init	1

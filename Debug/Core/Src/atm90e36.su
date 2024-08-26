@@ -1,0 +1,3 @@
+../Core/Src/atm90e36.c:28:6:readEnrgyMeterValues	16	static
+../Core/Src/atm90e36.c:50:10:CommEnergyIC	48	static
+../Core/Src/atm90e36.c:97:6:ATM90E36A_Init	8	static

@@ -21,9 +21,11 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "string.h"
-#include "stdio.h"
-#include "RFID_RC522.h"
+#include"stdio.h"
+#include"stm32h5xx_hal_uart.h"
+#include "stm32h5xx_hal_spi.h"
+#include"atm90e36.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -39,6 +41,9 @@
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
 
+
+
+
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
@@ -48,19 +53,17 @@ SPI_HandleTypeDef hspi1;
 UART_HandleTypeDef huart3;
 
 /* USER CODE BEGIN PV */
+//uint16_t send_data = 0x1234;
+//uint16_t rec_data = 0;
 
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
-static void MX_SPI1_Init(void);
 static void MX_USART3_UART_Init(void);
+static void MX_SPI1_Init(void);
 /* USER CODE BEGIN PFP */
-
-uint8_t status;
-uint8_t str[MAX_LEN]; // Max_LEN = 16
-uint8_t sNum[5];
 
 /* USER CODE END PFP */
 
@@ -70,6 +73,7 @@ int __io_putchar(int ch) {
     HAL_UART_Transmit(&huart3, (uint8_t *)&ch, 1, HAL_MAX_DELAY);
     return ch;
 }
+
 /* USER CODE END 0 */
 
 /**
@@ -100,21 +104,12 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_SPI1_Init();
   MX_USART3_UART_Init();
+  MX_SPI1_Init();
   /* USER CODE BEGIN 2 */
-//  RC522_Init();
-  MFRC522_Init();
-//  HAL_GPIO_WritePin(GPIOF, GPIO_PIN_4, GPIO_PIN_SET);
-//  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_4, GPIO_PIN_SET);
-//  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_SET);
-  printf("Welcome STM32 Development\r\n");
 
-  uint8_t id[5];
-  HAL_StatusTypeDef result;
-//  HAL_Delay(2000);
-//  RC522_AntennaOn();
-
+  ATM90E36A_Init();
+//  uint16_t temp = 0;
 
   /* USER CODE END 2 */
 
@@ -122,50 +117,25 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-//	  result = HAL_SPI_Transmit(&hspi1, (uint8_t*)"high", 4, HAL_MAX_DELAY);
-//
-//	  if (result == HAL_OK) {
-//	      printf("SPI transmission succeeded.\n");
-//	  } else if (result == HAL_ERROR) {
-//	      printf("SPI transmission failed with error.\n");
-//	  } else if (result == HAL_BUSY) {
-//	      printf("SPI transmission failed because the peripheral is busy.\n");
-//	  } else if (result == HAL_TIMEOUT) {
-//	      printf("SPI transmission failed due to timeout.\n");
-//	  }
-//	  if (RC522_Check(id) == MI_OK) {
-//	             printf("Card detected: %02X %02X %02X %02X %02X\n", id[0], id[1], id[2], id[3], id[4]);
-//	             HAL_GPIO_TogglePin(GPIOF, GPIO_PIN_4); // Toggle LED to indicate a tag is detected
-//	             	              HAL_Delay(500);
-//	         }
-
-//	  status = RC522_Request(PICC_REQIDL, str);
-//	          if (status == MI_OK) {
-//	              HAL_GPIO_TogglePin(GPIOF, GPIO_PIN_4); // Toggle LED to indicate a tag is detected
-//	              HAL_Delay(500);
-//	          }
-//	  HAL_Delay(1000);
-
-#if 1
-	  status = MFRC522_Request(PICC_REQIDL, str);
-	      if (status == MI_OK) {
-	          printf("Card detected\n");
-	      }
-
-	      status = MFRC522_Anticoll(str);
-	      if (status == MI_OK) {
-	          printf("Card's UID: ");
-	          for (int i = 0; i < 5; i++) {
-	              printf("%02X ", str[i]);
-	          }
-	          printf("\r\n");
-	      }
-#endif
-
-//	HAL_Delay(100);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+	  printf("hello\r\n");
+
+	  readEnrgyMeterValues();
+
+
+//	  printf("Interfacing stm32 with energy meter\r\n");
+//	  HAL_SPI_TransmitReceive(&hspi1,(uint8_t*)&send_data, (uint8_t*)&rec_data, 1, HAL_MAX_DELAY);
+//	  printf("rece %d\r\n",rec_data);
+	  HAL_Delay(1000);
+//	  fflush(stdout);
+//	  temp = CommEnergyIC(&hspi1, ATM90E36A_READ, Temp, 0);//UrmsA
+//	temp =  CommEnergyIC(&hspi1, ATM90E36A_READ, UrmsA, 0);
+
+//	  printf("TEMPERATURE: %d\r\n",temp);
+
+
   }
   /* USER CODE END 3 */
 }
@@ -220,10 +190,6 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-
-  /** Enables the Clock Security System
-  */
-  HAL_RCC_EnableCSS();
 }
 
 /**
@@ -249,7 +215,7 @@ static void MX_SPI1_Init(void)
   hspi1.Init.CLKPolarity = SPI_POLARITY_LOW;
   hspi1.Init.CLKPhase = SPI_PHASE_1EDGE;
   hspi1.Init.NSS = SPI_NSS_HARD_OUTPUT;
-  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_64;
+  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_256;
   hspi1.Init.FirstBit = SPI_FIRSTBIT_MSB;
   hspi1.Init.TIMode = SPI_TIMODE_DISABLE;
   hspi1.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
@@ -334,53 +300,31 @@ static void MX_GPIO_Init(void)
 /* USER CODE END MX_GPIO_Init_1 */
 
   /* GPIO Ports Clock Enable */
-  __HAL_RCC_GPIOF_CLK_ENABLE();
   __HAL_RCC_GPIOH_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
-  __HAL_RCC_GPIOB_CLK_ENABLE();
-  __HAL_RCC_GPIOD_CLK_ENABLE();
-  __HAL_RCC_GPIOG_CLK_ENABLE();
   __HAL_RCC_GPIOC_CLK_ENABLE();
+  __HAL_RCC_GPIOB_CLK_ENABLE();
+  __HAL_RCC_GPIOG_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOF, GPIO_PIN_4, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4|GPIO_PIN_15, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_RESET);
 
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_4, GPIO_PIN_RESET);
-
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_8|GPIO_PIN_9, GPIO_PIN_RESET);
-
-  /*Configure GPIO pin : PF4 */
-  GPIO_InitStruct.Pin = GPIO_PIN_4;
+  /*Configure GPIO pins : PA4 PA15 */
+  GPIO_InitStruct.Pin = GPIO_PIN_4|GPIO_PIN_15;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOF, &GPIO_InitStruct);
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : PB0 */
-  GPIO_InitStruct.Pin = GPIO_PIN_0;
+  /*Configure GPIO pin : PB6 */
+  GPIO_InitStruct.Pin = GPIO_PIN_6;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : PG4 */
-  GPIO_InitStruct.Pin = GPIO_PIN_4;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOG, &GPIO_InitStruct);
-
-  /*Configure GPIO pins : PC8 PC9 */
-  GPIO_InitStruct.Pin = GPIO_PIN_8|GPIO_PIN_9;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
 /* USER CODE BEGIN MX_GPIO_Init_2 */
 /* USER CODE END MX_GPIO_Init_2 */
